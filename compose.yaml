@@ -1,0 +1,16 @@
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - purchase_request_data:/data
+
+  test:
+    build: .
+    command: python -m unittest discover -s tests -v
+    profiles:
+      - test
+
+volumes:
+  purchase_request_data:
