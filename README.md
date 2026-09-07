@@ -135,6 +135,26 @@ Open http://localhost:8000. Compose stores the local SQLite database in its
 `purchase_request_data` volume, so requests remain available after restarting
 the app. Stop the server with `Ctrl+C`.
 
+### Run the Incident Triage Copilot in Docker
+
+The Docker image includes LangGraph and the Incident Triage Copilot. Run its
+deterministic mock provider without credentials:
+
+```powershell
+docker compose run --rm app python -m copilot incident
+```
+
+To run the live Hugging Face provider, pass the token from the current
+PowerShell session into the one-off container:
+
+```powershell
+docker compose run --rm -e HF_TOKEN=$env:HF_TOKEN app python -m copilot incident --provider huggingface
+```
+
+The local `.env` file is intentionally excluded from the image and is not sent
+to Docker. This keeps the token out of the build context; set `HF_TOKEN` in the
+shell first or pass its value with `-e` as shown above.
+
 Run the test suite in the same image:
 
 ```powershell
