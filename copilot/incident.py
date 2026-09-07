@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 import os
+from pathlib import Path
 from typing import Literal, TypedDict
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -18,6 +19,17 @@ RUNBOOKS = {
     "service_outage": "RB-402: Check service health, establish an incident channel, and publish a status update after verification.",
     "general": "RB-001: Capture impact, timeline, owner, and next update time before closing the report.",
 }
+
+
+def load_local_env(path=".env"):
+    """Load only this demo's optional model settings without overwriting the shell."""
+    candidate = Path(path)
+    if not candidate.is_file():
+        return
+    for line in candidate.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.strip().partition("=")
+        if separator and key in {"HF_TOKEN", "HF_MODEL"} and key not in os.environ:
+            os.environ[key] = value.strip().strip('"').strip("'")
 
 
 class IncidentState(TypedDict, total=False):
@@ -133,6 +145,7 @@ def build_graph(model: ChatModel):
 
 
 def choose_model(provider: str) -> ChatModel:
+    load_local_env()
     if provider == "mock":
         return MockChatModel()
     token = os.getenv("HF_TOKEN")

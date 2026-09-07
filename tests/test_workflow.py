@@ -1,9 +1,11 @@
 from pathlib import Path
+import os
 import tempfile
 import unittest
+from unittest.mock import patch
 from copilot.core import Principal, Workflow
 from copilot.mcp_server import tool_result
-from copilot.incident import run as run_incident
+from copilot.incident import load_local_env, run as run_incident
 
 
 class WorkflowTests(unittest.TestCase):
@@ -100,6 +102,15 @@ class WorkflowTests(unittest.TestCase):
     def test_incident_graph_can_finish_noncritical_case(self):
         result = run_incident("One employee cannot log in to the dashboard.")
         self.assertEqual(result["status"], "ready_for_response")
+
+    def test_local_env_loads_model_settings_without_overwriting_shell(self):
+        with tempfile.TemporaryDirectory() as folder:
+            env_file = Path(folder) / ".env"
+            env_file.write_text("HF_TOKEN=local-token\nHF_MODEL=example/model\n")
+            with patch.dict("os.environ", {"HF_TOKEN": "shell-token"}, clear=True):
+                load_local_env(env_file)
+                self.assertEqual(os.environ["HF_TOKEN"], "shell-token")
+                self.assertEqual(os.environ["HF_MODEL"], "example/model")
 
     def test_requester_cannot_approve_even_with_approver_role(self):
         rid = self.ready()

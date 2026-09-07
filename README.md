@@ -35,7 +35,8 @@ For a credible live demonstration, use Hugging Face Inference Providers. Its
 free tier supplies monthly inference credits, and its chat-completions endpoint
 is OpenAI-compatible. Create a fine-grained token with the “Make calls to
 Inference Providers” permission, then set `HF_TOKEN` in PowerShell for the
-current shell:
+current shell. Alternatively, paste the value after `HF_TOKEN=` in the local
+`.env` file; it is ignored by Git and loaded automatically:
 
 ```powershell
 $env:HF_TOKEN = "hf_your_token"
