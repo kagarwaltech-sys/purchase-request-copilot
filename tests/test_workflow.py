@@ -5,7 +5,7 @@ import unittest
 from unittest.mock import patch
 from copilot.core import Principal, Workflow
 from copilot.mcp_server import tool_result
-from copilot.incident import load_local_env, run as run_incident
+from copilot.incident import ChatModel, build_graph, load_local_env, run as run_incident
 
 
 class WorkflowTests(unittest.TestCase):
@@ -97,11 +97,27 @@ class WorkflowTests(unittest.TestCase):
         self.assertEqual(result["category"], "data_exposure")
         self.assertEqual(result["severity"], "critical")
         self.assertEqual(result["status"], "requires_human_review")
-        self.assertEqual(len(result["model_trace"]), 2)
+        self.assertIn("classification model call", result["model_trace"])
+        self.assertIn("drafting model call", result["model_trace"])
+        self.assertIn("operator update constrained to verified state", result["model_trace"])
 
     def test_incident_graph_can_finish_noncritical_case(self):
         result = run_incident("One employee cannot log in to the dashboard.")
         self.assertEqual(result["status"], "ready_for_response")
+
+    def test_incident_graph_removes_invented_model_details_from_operator_update(self):
+        class InventingModel(ChatModel):
+            def classify(self, incident):
+                return "payment_failure"
+
+            def draft(self, incident, category, severity, runbook):
+                return "INC-999: At 08:00 UTC we confirmed the provider is down and disabled retries."
+
+        result = build_graph(InventingModel()).invoke({"incident": "Checkout has errors.", "approved": False})
+        self.assertIn("Checkout has errors.", result["draft_update"])
+        self.assertIn("have not yet been verified", result["draft_update"])
+        self.assertNotIn("INC-999", result["draft_update"])
+        self.assertNotIn("08:00", result["draft_update"])
 
     def test_local_env_loads_model_settings_without_overwriting_shell(self):
         with tempfile.TemporaryDirectory() as folder:

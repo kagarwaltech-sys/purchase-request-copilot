@@ -102,6 +102,27 @@ def severity(incident: str, category: str) -> str:
     return "moderate"
 
 
+def source_bound_update(incident: str, category: str, level: str, runbook: str) -> str:
+    """Create the operator-facing update from verified graph state only.
+
+    A model may propose wording, but it must not introduce incident IDs, dates,
+    completed actions, root causes, or customer impact that the report did not
+    establish. This template is intentionally narrow until verified facts are
+    added through a separate incident-record system.
+    """
+    return (
+        "Internal incident update\n\n"
+        f"Reported incident: {incident}\n"
+        f"Classification: {category.replace('_', ' ')}\n"
+        f"Severity: {level}\n"
+        f"Approved runbook: {runbook}\n\n"
+        "Current status: Investigation is in progress. The cause, impact extent, "
+        "and remediation have not yet been verified.\n"
+        "Next step: Follow the approved runbook and publish a verified update through "
+        "the incident lead."
+    )
+
+
 def build_graph(model: ChatModel):
     def classify(state: IncidentState):
         category = model.classify(state["incident"])
@@ -114,8 +135,12 @@ def build_graph(model: ChatModel):
         return {"runbook": RUNBOOKS[state["category"]]}
 
     def draft_update(state: IncidentState):
-        draft = model.draft(state["incident"], state["category"], state["severity"], state["runbook"])
-        return {"draft_update": draft, "model_trace": state.get("model_trace", []) + ["drafting model call"]}
+        # Retain the model call as an evaluation point, but never display its
+        # unconstrained prose directly. The source-bound output below is the
+        # only draft exposed to a human or downstream system.
+        model.draft(state["incident"], state["category"], state["severity"], state["runbook"])
+        draft = source_bound_update(state["incident"], state["category"], state["severity"], state["runbook"])
+        return {"draft_update": draft, "model_trace": state.get("model_trace", []) + ["drafting model call", "operator update constrained to verified state"]}
 
     def human_review(state: IncidentState):
         status = "approved_for_response" if state.get("approved") else "requires_human_review"

@@ -46,6 +46,9 @@ python -m copilot incident --provider huggingface --incident "Payment checkout i
 The adapter calls `https://router.huggingface.co/v1/chat/completions` and
 defaults to `openai/gpt-oss-120b:cheapest`; change `HF_MODEL` if needed. Keep
 `mock` for repeatable tests and use the live provider only with synthetic text.
+Model prose is treated as untrusted: the operator-facing update is constructed
+only from verified graph state and the selected runbook, preventing invented
+incident IDs, timestamps, completed actions, causes, or impact claims.
 See the [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview)
 and [Hugging Face Inference Providers documentation](https://huggingface.co/docs/inference-providers/en/index)
 for current details.
