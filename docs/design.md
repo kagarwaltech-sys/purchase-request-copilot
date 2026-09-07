@@ -1,6 +1,7 @@
 # Purchase Request Copilot — design
 
-Status: initial architecture and executable mock workflow, September 6, 2026.
+Status: implemented local POC with browser UI, JSON API, read-only MCP server,
+and an independent LangGraph incident-triage demonstration, September 7, 2026.
 
 ## Problem and outcome
 
@@ -10,9 +11,16 @@ The portfolio demonstrates agent specialization, limited context, orchestration,
 
 ## Scope
 
-Initial implementation: standard-library Python package, CLI demonstration, SQLite, deterministic simulated agents, synthetic policies/vendors/inventory, and regression tests. No external writes, real purchases, real company data, or provider credentials.
+Implemented: Python package, CLI demonstration, browser UI, local fixture
+sessions, JSON API, SQLite persistence, deterministic simulated agents,
+synthetic policies/vendors/inventory, a read-only MCP server, Docker Compose,
+and regression tests. The separate incident-triage POC uses LangGraph and can
+use either a deterministic model fixture or an optional Hugging Face adapter.
+No external writes, real purchases, real company data, or provider credentials
+are required by default.
 
-Next: web UI and authenticated API, then replace simulated agents with provider adapters. Real vendor onboarding, payment processing, and enterprise identity provisioning are outside this POC.
+Real vendor onboarding, payment processing, enterprise identity provisioning,
+and production-grade session management remain outside this POC.
 
 ## Architecture
 
@@ -85,17 +93,28 @@ Keyword detection in the simulator merely supplies a visible injection demonstra
 
 SQLite and CLI principals are local development facilities. Production requirements include authenticated identities, encrypted storage and transport, secrets management, document upload limits, malware checks, redacted telemetry, retention/deletion, backup policy, and protected audit storage. Do not claim these controls are implemented in the initial slice.
 
-## UI and API plan
+## Implemented UI, API, and MCP surfaces
 
-The UI will provide a request form/conversation, workflow timeline, evidence drawer, and approver inbox. Show unresolved questions and cited evidence in the approval packet. Keep model/provider traces in a separate developer view.
+The UI provides a request form, department inbox, editable missing-information
+flow, readable review packet, cited evidence labels, role-aware actions, and an
+audit timeline. Fixture sign-in selects Alice, Bob, or Eve and stores an
+in-memory local session.
 
-Planned API: create/read/update request, run review, approve expected version, and submit approved order. Derive actor identity from authentication, never from request JSON. Validate state and authorization inside the service, regardless of the UI. Return conflict responses for stale versions. API implementation and browser testing are a subsequent milestone.
+The JSON API implements create/read/update request, review, approve with
+`expected_version`, and mock order submission. The same `Workflow` methods
+enforce authorization and state transitions for both UI and API requests. The
+MCP server provides only department-scoped request listing and inspection.
 
 ## Evaluation and delivery milestones
 
 1. Implemented: executable mock core and four demo scenarios; tests for access isolation, separation of duties, missing facts, injected instructions, version invalidation, persistence, and idempotency.
-2. Next: API/UI with authentication fixtures, stale-version feedback, editable missing-information flow, and trace display.
-3. Then: real model adapter, schema/evidence validation, bounded retries, usage telemetry, and policy retrieval.
-4. Portfolio finish: 20–30 labeled cases covering extraction, policy evidence, ambiguous requests, malicious documents, and tool failures; compare model configurations and publish measured results with a short demo recording.
+2. Implemented: UI/API with authentication fixtures, stale-version feedback,
+   editable missing-information flow, audit display, and read-only MCP access.
+3. Implemented separately: LangGraph incident workflow with optional live-model
+   adapter and source-bound output validation. Next: structured provider output,
+   bounded retries, usage telemetry, and policy retrieval.
+4. Portfolio finish: 20–30 labeled cases covering extraction, policy evidence,
+   ambiguous requests, malicious documents, and tool failures; compare model
+   configurations and publish measured results with a short demo recording.
 
 Success criteria: all invariant tests pass; zero unauthorized or duplicate mock orders; model evaluation reports citation correctness, task success, cost, and latency. No model-quality numbers are claimed before real model evaluation.

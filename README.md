@@ -7,6 +7,10 @@ LangGraph. That POC classifies an incident, applies deterministic severity
 rules, retrieves a runbook, drafts an internal update, and routes critical
 incidents to human review.
 
+Read [features and walkthroughs](docs/features.md), the [architecture guide](docs/architecture.md),
+and the detailed [design rationale](docs/design.md) for an overview before
+running either demo.
+
 ## Run
 
 Requires Python 3.11+; no packages or credentials are needed.
