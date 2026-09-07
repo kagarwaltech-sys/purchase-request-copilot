@@ -1,18 +1,28 @@
 import argparse
 import json
 from .core import Principal, Workflow
+from .mcp_server import run as run_mcp
 from .web import serve
 
 
 def main():
     parser = argparse.ArgumentParser(description="Purchase Request Copilot mock demonstration")
-    parser.add_argument("command", choices=["demo", "serve"])
+    parser.add_argument("command", choices=["demo", "serve", "mcp"])
     parser.add_argument("--db", default=":memory:")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
+    parser.add_argument("--user", choices=["alice", "bob", "eve"], default="alice")
     args = parser.parse_args()
     if args.command == "serve":
         serve(host=args.host, port=args.port, database=args.db)
+        return
+    if args.command == "mcp":
+        principals = {
+            "alice": Principal("alice", "design"),
+            "bob": Principal("bob", "design", "approver"),
+            "eve": Principal("eve", "engineering", "approver"),
+        }
+        run_mcp(args.db, principals[args.user])
         return
     workflow = Workflow(args.db)
     employee = Principal("alice", "design")

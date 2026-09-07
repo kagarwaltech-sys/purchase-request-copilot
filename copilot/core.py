@@ -107,6 +107,14 @@ class Workflow:
             result.append(item)
         return result
 
+    def audit_history(self, rid, actor):
+        """Return the request's event history after enforcing department access."""
+        self._row(rid, actor)
+        rows = self.db.execute(
+            "SELECT actor, event, version, created_at FROM audit WHERE request_id=? ORDER BY seq", (rid,)
+        ).fetchall()
+        return [dict(row) for row in rows]
+
     @staticmethod
     def _validate(body):
         if set(body) != {"vendor", "seats", "monthly_price", "customer_data"}:

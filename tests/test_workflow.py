@@ -2,6 +2,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from copilot.core import Principal, Workflow
+from copilot.mcp_server import tool_result
 
 
 class WorkflowTests(unittest.TestCase):
@@ -72,6 +73,21 @@ class WorkflowTests(unittest.TestCase):
         rid = self.w.create(self.employee)
         self.assertEqual([item["id"] for item in self.w.list(self.employee)], [rid])
         self.assertEqual(self.w.list(Principal("eve", "engineering")), [])
+
+    def test_audit_history_is_scoped_and_ordered(self):
+        rid = self.w.create(self.employee)
+        self.w.review(rid, self.employee)
+        history = self.w.audit_history(rid, self.employee)
+        self.assertEqual([event["event"] for event in history], ["created", "reviewed"])
+        with self.assertRaises(PermissionError):
+            self.w.audit_history(rid, Principal("eve", "engineering"))
+
+    def test_mcp_tools_are_read_only_and_scoped(self):
+        rid = self.w.create(self.employee)
+        result = tool_result(self.w, self.employee, "get_purchase_request", {"request_id": rid})
+        self.assertIn(rid, result["content"][0]["text"])
+        with self.assertRaises(PermissionError):
+            tool_result(self.w, Principal("eve", "engineering"), "get_purchase_request", {"request_id": rid})
 
     def test_requester_cannot_approve_even_with_approver_role(self):
         rid = self.ready()
