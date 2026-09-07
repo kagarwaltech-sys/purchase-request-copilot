@@ -1,8 +1,8 @@
 import argparse
 import json
-from .core import Principal, Workflow
-from .mcp_server import run as run_mcp
-from .web import serve
+from .purchase_request_mcp import run as run_mcp
+from .purchase_request_web import serve
+from .purchase_request_workflow import Principal, Workflow
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
         return
     if args.command == "incident":
         # Keep the original purchase workflow usable without LangGraph.
-        from .incident import run as run_incident
+        from .incident_triage_workflow import run as run_incident
         print(json.dumps(run_incident(args.incident, args.provider, args.approved), indent=2))
         return
     workflow = Workflow(args.db)

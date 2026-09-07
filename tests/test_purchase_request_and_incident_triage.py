@@ -3,9 +3,9 @@ import os
 import tempfile
 import unittest
 from unittest.mock import patch
-from copilot.core import Principal, Workflow
-from copilot.mcp_server import tool_result
-from copilot.incident import ChatModel, build_graph, load_local_env, run as run_incident
+from copilot.purchase_request_workflow import Principal, Workflow
+from copilot.purchase_request_mcp import tool_result
+from copilot.incident_triage_workflow import ChatModel, build_graph, load_local_env, run as run_incident
 
 
 class WorkflowTests(unittest.TestCase):

@@ -20,7 +20,7 @@ Design has TeamBoard. Engineering has NoteSpace. These department-specific recor
 
 ## vendor-v1
 
-The record identifier is `vendor-v1#<vendor name>`. Fixtures are in `copilot/core.py`.
+The record identifier is `vendor-v1#<vendor name>`. Fixtures are in `copilot/purchase_request_workflow.py`.
 
 | Vendor | Mock attestation | Evidence text |
 | --- | --- | --- |

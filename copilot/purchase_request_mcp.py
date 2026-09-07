@@ -7,7 +7,7 @@ role checks and browser/API flows.
 import json
 import sys
 
-from .core import Principal, Workflow
+from .purchase_request_workflow import Principal, Workflow
 
 
 TOOLS = [

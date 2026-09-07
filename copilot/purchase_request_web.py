@@ -10,7 +10,7 @@ import json
 import secrets
 from urllib.parse import parse_qs, quote, urlparse
 
-from .core import INVENTORY, VENDORS, Principal, Workflow
+from .purchase_request_workflow import INVENTORY, VENDORS, Principal, Workflow
 
 
 USERS = {

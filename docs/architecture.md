@@ -35,7 +35,7 @@ stateDiagram-v2
 ```
 
 The UI and API only collect input and display results. `Workflow` in
-`copilot/core.py` owns authorization and state transitions, so a client cannot
+`copilot/purchase_request_workflow.py` owns authorization and state transitions, so a client cannot
 bypass permissions by calling an endpoint directly.
 
 ### Data and access boundaries

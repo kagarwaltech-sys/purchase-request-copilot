@@ -15,8 +15,8 @@ running either demo.
 
 | Implementation | Location | Purpose | Run command |
 | --- | --- | --- | --- |
-| Deterministic Purchase Request Copilot | `copilot/core.py` | Controlled purchase workflow with specialized mock agents, UI, API, SQLite, and MCP read tools | `python -m copilot demo` or `python -m copilot serve` |
-| LangGraph Incident Triage Copilot | `copilot/incident.py` | Stateful incident triage graph with model calls, deterministic policy, runbooks, and human-review routing | `python -m copilot incident` |
+| Deterministic Purchase Request Copilot | `copilot/purchase_request_workflow.py` | Controlled purchase workflow with specialized mock agents, UI, API, SQLite, and MCP read tools | `python -m copilot demo` or `python -m copilot serve` |
+| LangGraph Incident Triage Copilot | `copilot/incident_triage_workflow.py` | Stateful incident triage graph with model calls, deterministic policy, runbooks, and human-review routing | `python -m copilot incident` |
 
 The LangGraph work did not replace the purchase implementation. The purchase
 commands import no LangGraph code, so they remain runnable without installing
