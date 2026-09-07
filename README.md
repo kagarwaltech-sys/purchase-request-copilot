@@ -11,9 +11,21 @@ Read [features and walkthroughs](docs/features.md), the [architecture guide](doc
 and the detailed [design rationale](docs/design.md) for an overview before
 running either demo.
 
+## Two independent implementations
+
+| Implementation | Location | Purpose | Run command |
+| --- | --- | --- | --- |
+| Deterministic Purchase Request Copilot | `copilot/core.py` | Controlled purchase workflow with specialized mock agents, UI, API, SQLite, and MCP read tools | `python -m copilot demo` or `python -m copilot serve` |
+| LangGraph Incident Triage Copilot | `copilot/incident.py` | Stateful incident triage graph with model calls, deterministic policy, runbooks, and human-review routing | `python -m copilot incident` |
+
+The LangGraph work did not replace the purchase implementation. The purchase
+commands import no LangGraph code, so they remain runnable without installing
+the incident POC dependency.
+
 ## Run
 
-Requires Python 3.11+; no packages or credentials are needed.
+The purchase workflow requires Python 3.11+ and no packages or credentials.
+The incident workflow additionally requires LangGraph, as shown below.
 
 ```powershell
 cd C:\Users\16122\learn\purchase-request-copilot
