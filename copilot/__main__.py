@@ -1,17 +1,21 @@
 import argparse
 import json
 from .core import Principal, Workflow
+from .incident import run as run_incident
 from .mcp_server import run as run_mcp
 from .web import serve
 
 
 def main():
     parser = argparse.ArgumentParser(description="Purchase Request Copilot mock demonstration")
-    parser.add_argument("command", choices=["demo", "serve", "mcp"])
+    parser.add_argument("command", choices=["demo", "serve", "mcp", "incident"])
     parser.add_argument("--db", default=":memory:")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--user", choices=["alice", "bob", "eve"], default="alice")
+    parser.add_argument("--incident", default="Multiple users cannot log in after an SSO configuration change.")
+    parser.add_argument("--provider", choices=["mock", "huggingface"], default="mock")
+    parser.add_argument("--approved", action="store_true")
     args = parser.parse_args()
     if args.command == "serve":
         serve(host=args.host, port=args.port, database=args.db)
@@ -23,6 +27,9 @@ def main():
             "eve": Principal("eve", "engineering", "approver"),
         }
         run_mcp(args.db, principals[args.user])
+        return
+    if args.command == "incident":
+        print(json.dumps(run_incident(args.incident, args.provider, args.approved), indent=2))
         return
     workflow = Workflow(args.db)
     employee = Principal("alice", "design")

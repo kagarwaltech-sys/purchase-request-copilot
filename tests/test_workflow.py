@@ -3,6 +3,7 @@ import tempfile
 import unittest
 from copilot.core import Principal, Workflow
 from copilot.mcp_server import tool_result
+from copilot.incident import run as run_incident
 
 
 class WorkflowTests(unittest.TestCase):
@@ -88,6 +89,17 @@ class WorkflowTests(unittest.TestCase):
         self.assertIn(rid, result["content"][0]["text"])
         with self.assertRaises(PermissionError):
             tool_result(self.w, Principal("eve", "engineering"), "get_purchase_request", {"request_id": rid})
+
+    def test_incident_graph_routes_critical_cases_to_human_review(self):
+        result = run_incident("A public bucket exposed customer records.")
+        self.assertEqual(result["category"], "data_exposure")
+        self.assertEqual(result["severity"], "critical")
+        self.assertEqual(result["status"], "requires_human_review")
+        self.assertEqual(len(result["model_trace"]), 2)
+
+    def test_incident_graph_can_finish_noncritical_case(self):
+        result = run_incident("One employee cannot log in to the dashboard.")
+        self.assertEqual(result["status"], "ready_for_response")
 
     def test_requester_cannot_approve_even_with_approver_role(self):
         rid = self.ready()

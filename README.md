@@ -2,6 +2,11 @@
 
 A portfolio POC for embedding specialized AI agents into a controlled purchasing workflow.
 
+It also contains an independent **Incident Triage Copilot** built with
+LangGraph. That POC classifies an incident, applies deterministic severity
+rules, retrieves a runbook, drafts an internal update, and routes critical
+incidents to human review.
+
 ## Run
 
 Requires Python 3.11+; no packages or credentials are needed.
@@ -9,8 +14,40 @@ Requires Python 3.11+; no packages or credentials are needed.
 ```powershell
 cd C:\Users\16122\learn\purchase-request-copilot
 python -m copilot demo
+python -m copilot incident
 python -m unittest discover -s tests -v
 ```
+
+## Incident Triage Copilot
+
+Install LangGraph before running this POC outside Docker:
+
+```powershell
+python -m pip install -r requirements.txt
+python -m copilot incident --incident "A public bucket may have exposed customer records."
+```
+
+The default `mock` provider makes two predictable model-shaped calls and needs
+no key. Critical incidents end in `requires_human_review`; pass `--approved`
+to record a simulated human approval after reviewing the draft.
+
+For a credible live demonstration, use Hugging Face Inference Providers. Its
+free tier supplies monthly inference credits, and its chat-completions endpoint
+is OpenAI-compatible. Create a fine-grained token with the “Make calls to
+Inference Providers” permission, then set `HF_TOKEN` in PowerShell for the
+current shell:
+
+```powershell
+$env:HF_TOKEN = "hf_your_token"
+python -m copilot incident --provider huggingface --incident "Payment checkout is failing for many users."
+```
+
+The adapter calls `https://router.huggingface.co/v1/chat/completions` and
+defaults to `openai/gpt-oss-120b:cheapest`; change `HF_MODEL` if needed. Keep
+`mock` for repeatable tests and use the live provider only with synthetic text.
+See the [LangGraph overview](https://docs.langchain.com/oss/python/langgraph/overview)
+and [Hugging Face Inference Providers documentation](https://huggingface.co/docs/inference-providers/en/index)
+for current details.
 
 ## Interactive UI
 
